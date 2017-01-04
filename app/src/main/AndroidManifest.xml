@@ -20,18 +20,33 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.DeviceDefault.Light">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+
+        <activity
+            android:name=".WearActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat">
+
+        </activity>
+
         <receiver android:name=".WearableService$broadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BATTERY_LOW" />
             </intent-filter>
         </receiver>
+
+        <service android:name=".ActivityRecognisedService"></service>
+        <service android:name=".WearableService"></service>
+        <service android:name=".testService"></service>
+
     </application>
 
 </manifest>

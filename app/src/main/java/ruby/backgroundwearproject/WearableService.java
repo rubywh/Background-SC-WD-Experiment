@@ -12,13 +12,12 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 /**
- * Created by ruby__000 on 22/12/2016.
+ * The service that receives onSensorChanged updates and writes data to file
  */
 
 public class WearableService extends Service implements SensorEventListener {
@@ -29,6 +28,8 @@ public class WearableService extends Service implements SensorEventListener {
     private PrintStream ps;
     private PrintStream ps_gyro;
     private String androidpath;
+    private String fileAccelerometer;
+    private String fileGyro;
 
     @Override
     public void onCreate() {
@@ -48,20 +49,22 @@ public class WearableService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.i(TAG, "onSensorChanged");
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+
             new AccelerometerEventLoggerTask().execute(event);
+
         }
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+
             new GyroEventLoggerTask().execute(event);
         }
     }
 
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 
         this.makeFile();
-
         return Service.START_STICKY;
     }
 
@@ -88,19 +91,24 @@ public class WearableService extends Service implements SensorEventListener {
     }
 
     public void makeFile() {
+        Log.d(TAG, "makeFile");
         androidpath = Environment.getExternalStorageDirectory().toString();
-
+        fileAccelerometer = androidpath + "/testaccelerometer.dat";
+        System.out.println(fileAccelerometer);
+        fileGyro = androidpath + "/testgyroscope.dat";
         try {
-            ps = new PrintStream(new FileOutputStream(androidpath + "/accelerometer.dat"));
-            ps_gyro = new PrintStream(new FileOutputStream(androidpath + "/gyroscope.dat"));
+            ps = new PrintStream(new FileOutputStream(fileAccelerometer));
+            ps_gyro = new PrintStream(new FileOutputStream(fileGyro));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    //Stop service if battery low
     public class broadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            System.out.println("Service stopping as battery low.");
             ps.flush();
             ps_gyro.flush();
             ps.close();
@@ -110,6 +118,7 @@ public class WearableService extends Service implements SensorEventListener {
     }
 
     private class AccelerometerEventLoggerTask extends AsyncTask<SensorEvent, Void, Void> {
+
         @Override
         protected Void doInBackground(SensorEvent... events) {
             SensorEvent event = events[0];
@@ -117,7 +126,7 @@ public class WearableService extends Service implements SensorEventListener {
                     String.valueOf(event.values[0]) + ";" +
                     String.valueOf(event.values[1]) + ";" +
                     String.valueOf(event.values[2]);
-            Log.i(TAG, line);
+
             ps.println(line);
             return null;
         }
@@ -127,13 +136,12 @@ public class WearableService extends Service implements SensorEventListener {
         @Override
         protected Void doInBackground(SensorEvent... events) {
             //Getting the event and values
-
             SensorEvent event = events[0];
             String line = String.valueOf(System.currentTimeMillis()) + ";" +
                     String.valueOf(event.values[0]) + ";" +
                     String.valueOf(event.values[1]) + ";" +
                     String.valueOf(event.values[2]);
-            Log.i(TAG, line);
+
             ps_gyro.println(line);
             return null;
         }
