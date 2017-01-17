@@ -48,9 +48,10 @@ public class WearActivity extends AppCompatActivity implements GoogleApiClient.C
         Log.d(TAG, "connected");
         //Pass pending intent to the api
         Intent intent = new Intent(this, ActivityRecognisedService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //FLAG_UPDATE_CURRENT means get the same pending intent back when requesting updates
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Check activity every 2 seconds and send to ActivityRecognisedService
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 1, pendingIntent);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 0, pendingIntent);
     }
 
 

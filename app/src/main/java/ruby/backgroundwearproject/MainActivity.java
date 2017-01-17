@@ -20,4 +20,6 @@ public class MainActivity extends WearableActivity {
         Log.d(TAG, "service started");
         finish();
     }
+
+
 }
