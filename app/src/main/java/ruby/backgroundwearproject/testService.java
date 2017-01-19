@@ -1,5 +1,6 @@
 package ruby.backgroundwearproject;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -35,6 +36,13 @@ public class testService extends Service implements GoogleApiClient.ConnectionCa
         super.onCreate();
         buildGoogleApiClient();
         mApiClient.connect();
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Walk data");
+        builder.setContentText("Application Running...");
+        builder.setSmallIcon(R.drawable.web_hi_res_512);
+
+        startForeground(1, builder.build());
+
     }
 
 

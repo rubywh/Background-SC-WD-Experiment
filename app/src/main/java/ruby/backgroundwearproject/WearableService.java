@@ -1,5 +1,6 @@
 package ruby.backgroundwearproject;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,8 +30,6 @@ public class WearableService extends Service implements SensorEventListener {
     private PrintStream ps;
     private PrintStream ps_gyro;
     private String androidpath;
-    private String fileAccelerometer;
-    private String fileGyro;
 
     @Override
     public void onCreate() {
@@ -46,6 +45,14 @@ public class WearableService extends Service implements SensorEventListener {
         //register the sensor, use context, name and rate at which sensor events are delivered to us.
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
         senSensorManager.registerListener(this, senGyro, SensorManager.SENSOR_DELAY_FASTEST);
+
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Walk data");
+        builder.setContentText("Collecting sensor data...");
+        builder.setSmallIcon(R.drawable.web_hi_res_512);
+
+        startForeground(1, builder.build());
+
 
     }
 
@@ -95,28 +102,23 @@ public class WearableService extends Service implements SensorEventListener {
         Log.d(TAG, "makeFile");
 
         androidpath = Environment.getExternalStorageDirectory().toString();
-        File fAccelerometer = new File(androidpath + "/testaccelerometer.dat");
-        File fGyroscope = new File(androidpath + "/testgyroscope.dat");
-
-        if (fAccelerometer.length() == 0) {
-
-            try {
-                ps = new PrintStream(new FileOutputStream(fAccelerometer));
-                ps_gyro = new PrintStream(new FileOutputStream(fGyroscope));
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            File fAccelerometer = new File(androidpath + "/rubytestaccelerometer.dat");
+            File fGyroscope = new File(androidpath + "/rubytestgyroscope.dat");
+            if (!fAccelerometer.exists()) {
+                fAccelerometer.createNewFile();
+                fGyroscope.createNewFile();
             }
-            // fileAccelerometer = androidpath + "/testaccelerometer.dat";
-            // System.out.println(fileAccelerometer);
-            //fileGyro = androidpath + "/testgyroscope.dat";
-        } else {
-            try {
-                ps = new PrintStream(new FileOutputStream(fAccelerometer, true));
-                ps_gyro = new PrintStream(new FileOutputStream(fGyroscope, true));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ps = new PrintStream(new FileOutputStream(fAccelerometer), true);
+            ps_gyro = new PrintStream(new FileOutputStream(fGyroscope), true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        // fileAccelerometer = androidpath + "/testaccelerometer.dat";
+        // System.out.println(fileAccelerometer);
+        //fileGyro = androidpath + "/testgyroscope.dat";
+
     }
 
 
@@ -130,7 +132,7 @@ public class WearableService extends Service implements SensorEventListener {
             ps.close();
             ps_gyro.close();
             stopSelf();
-        }
+    }
     }
 
     private class AccelerometerEventLoggerTask extends AsyncTask<SensorEvent, Void, Void> {
@@ -145,7 +147,7 @@ public class WearableService extends Service implements SensorEventListener {
             Log.d(TAG, "writing accelerometer data to file");
             ps.println(line);
             return null;
-        }
+    }
     }
 
     private class GyroEventLoggerTask extends AsyncTask<SensorEvent, Void, Void> {
@@ -160,6 +162,6 @@ public class WearableService extends Service implements SensorEventListener {
             Log.d(TAG, "writing gyro data to file");
             ps_gyro.println(line);
             return null;
-        }
+    }
     }
 }
